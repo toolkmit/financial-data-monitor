@@ -7,6 +7,5 @@ unzip -qq CME_metadata.csv.zip
 rm CME_metadata.csv.zip
 mv CME_metadata.csv data/CME_metadata.csv
 echo "Finished Getting CME Metadata"
-echo "Uploading CME Metadata to S3"
 python fdmonitor/load_futures.py
 echo "Finished uploading to S3"

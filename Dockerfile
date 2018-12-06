@@ -20,3 +20,5 @@ RUN pipenv install --deploy --system --skip-lock --dev
 
 # Copy project
 COPY . /code/
+
+CMD python scripts/download_all_futures_data.sh

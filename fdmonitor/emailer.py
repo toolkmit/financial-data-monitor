@@ -8,6 +8,8 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 
 def send_email():
+    """Mail PDF of charts to myself"""
+
     today = date.today().isoformat()
     # This address must be verified with Amazon SES.
     SENDER = "Marc Knight <marc@estatefox.com>"

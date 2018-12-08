@@ -48,6 +48,8 @@ def get_roll_date(i, df_dict, contracts, roll_rule, start=np.datetime64('1900-01
 
 
 def create_continuous_future(futures_symbol, CME_months, CME_years, roll_rule, is_backadjusted, use_s3=False):
+    """Create continuous futures contract"""
+
     df_dict = {}
     contracts = []
     roll_dates = []
@@ -126,6 +128,8 @@ def create_continuous_future(futures_symbol, CME_months, CME_years, roll_rule, i
 
 
 def get_cme_data(futures_symbol, cme_futures, cme_metadata):
+    """Extract contract data from dataframes"""
+
     futures_name = cme_futures.loc[futures_symbol, 'Name']
     month_codes = cme_futures.loc[futures_symbol, 'Priced Roll Cycle']
     last_month_code = month_codes[-1]

@@ -12,6 +12,8 @@ from fdmonitor.cont_futures import create_continuous_future, get_cme_data
 
 
 def plot_data(df, ax, fmt):
+    """Plot datframe on axis"""
+
     ax.patch.set(facecolor='w', edgecolor='k', linewidth=1.0)
     df['timestamp'] = df.index.to_pydatetime()
     df['ema'] = df['Close'].ewm(span=20, min_periods=20).mean()
@@ -41,6 +43,8 @@ def plot_data(df, ax, fmt):
 
 
 def draw_charts(data, plot_title, pdf_pages=None):
+    """Draw all charts on page"""
+
     fig = plt.figure(figsize=(16, 12))
     ax_daily = plt.subplot2grid((12, 16), (0, 0), colspan=16, rowspan=7)
     ax_weekly = plt.subplot2grid((12, 16), (7, 0), colspan=8, rowspan=5)
@@ -80,6 +84,11 @@ def draw_charts(data, plot_title, pdf_pages=None):
 
 
 def create_combined_pdf(cme_futures, cme_metadata, use_s3=False):
+    """
+    Create one pdf for all contracts --> open interest roll,
+    non backadjusted
+    """
+
     today = date.today().isoformat()
     pdf_pages = PdfPages(f'/code/pdfs/{today}.pdf')
     futures_symbols = cme_futures.index.tolist()

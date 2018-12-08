@@ -9,6 +9,8 @@ from datetime import date, timedelta
 
 
 def get_contract_codes(is_update=False):
+    """Generate list of contract codes to update/load"""
+
     cme_metadata = pd.read_csv('/code/data/CME_metadata.csv')
     cme_futures = pd.read_csv('/code/data/CME_futures.csv')
 
@@ -33,6 +35,8 @@ def get_contract_codes(is_update=False):
 
 
 def download_contract_from_quandl(exchange_code, contract_code, data_directory):
+    """Download csvs from Quandl and store locally"""
+
     API_KEY = os.environ['QUANDL_API_KEY']
     API_URL = f'http://www.quandl.com/api/v3/datasets/{exchange_code}/{contract_code}.csv' \
         f'?auth_token={API_KEY}&order=asc'
@@ -52,6 +56,8 @@ def download_contract_from_quandl(exchange_code, contract_code, data_directory):
 
 
 def upload_quandl_contract_to_s3(exchange_code, contract_code, boto_client):
+    """Download csvs from Quandl and store in S3"""
+
     API_KEY = os.environ['QUANDL_API_KEY']
 
     if len(contract_code) == 6:

@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from mpl_finance import candlestick_ohlc
 import matplotlib.ticker as ticker
 from matplotlib.backends.backend_pdf import PdfPages
+import sys
+sys.path.append('/code')
 from fdmonitor.cont_futures import create_continuous_future, get_cme_data
 
 
@@ -103,7 +105,6 @@ if __name__== "__main__":
         help="Use futures data stored in S3"
     )
     args = parser.parse_args()
-
 
     cme_metadata = pd.read_csv('/code/data/CME_metadata.csv')
     cme_futures = pd.read_csv('/code/data/CME_futures.csv')

@@ -1,7 +1,12 @@
+import argparse
 import numpy as np
+import pandas as pd
+from datetime import date
 import matplotlib.pyplot as plt
 from mpl_finance import candlestick_ohlc
 import matplotlib.ticker as ticker
+from matplotlib.backends.backend_pdf import PdfPages
+from fdmonitor.cont_futures import create_continuous_future, get_cme_data
 
 
 def plot_data(df, ax, fmt):
@@ -70,3 +75,39 @@ def draw_charts(data, plot_title, pdf_pages=None):
 
 
     plt.close(fig)
+
+
+def create_combined_pdf(cme_futures, cme_metadata, use_s3=False):
+    today = date.today().isoformat()
+    pdf_pages = PdfPages(f'/code/pdfs/{today}.pdf')
+    futures_symbols = cme_futures.index.tolist()
+    for futures_symbol in futures_symbols:
+        futures_name, CME_months, CME_years = get_cme_data(futures_symbol,
+                                                       cme_futures, cme_metadata)
+        data = create_continuous_future(futures_symbol, CME_months, CME_years,
+                                        'open_interest', is_backadjusted=False,
+                                        use_s3=use_s3)
+        date_string = data.index[-1].strftime('%m/%-d/%y')
+        plot_title = f'{futures_name} ({futures_symbol})\n{date_string}\nRoll: open_interest'
+        draw_charts(data, plot_title, pdf_pages)
+    pdf_pages.close()
+
+
+if __name__== "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--s3",
+        default=False,
+        dest='s3',
+        action='store_true',
+        help="Use futures data stored in S3"
+    )
+    args = parser.parse_args()
+
+
+    cme_metadata = pd.read_csv('/code/data/CME_metadata.csv')
+    cme_futures = pd.read_csv('/code/data/CME_futures.csv')
+    cme_futures.set_index('Futures Symbol', inplace=True)
+    print("Creating PDF")
+    create_combined_pdf(cme_futures, cme_metadata, args.s3)
+    print("PDF Creation Finished")

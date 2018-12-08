@@ -1,6 +1,9 @@
+import pathlib
+import boto3
 import numpy as np
 import pandas as pd
 import math as math
+
 
 
 def get_roll_date(i, df_dict, contracts, roll_rule, start=np.datetime64('1900-01-01')):
@@ -44,20 +47,31 @@ def get_roll_date(i, df_dict, contracts, roll_rule, start=np.datetime64('1900-01
     return start
 
 
-def create_continuous_future(futures_symbol, data_directory, CME_months, CME_years, roll_rule, is_backadjusted):
+def create_continuous_future(futures_symbol, CME_months, CME_years, roll_rule, is_backadjusted, use_s3=False):
     df_dict = {}
     contracts = []
     roll_dates = []
     start = np.datetime64('1900-01-01')
 
-    CONTRACT_DATA_DIRNAME = data_directory / 'raw_csv' / 'futures' / f'{futures_symbol}' / 'daily'
+    if use_s3:
+        s3 = boto3.client('s3')
+    else:
+        DATA_DIRNAME = pathlib.Path('/code').resolve() / 'data'
+        CONTRACT_DATA_DIRNAME = DATA_DIRNAME / 'raw_csv' / 'futures' / f'{futures_symbol}' / 'daily'
 
     for i in range(0, len(CME_months) * len(CME_years)):
         month = CME_months[i % len(CME_months)]
         year = CME_years[math.floor(i / len(CME_months))]
         contract = futures_symbol + month + str(year)
         contracts.append(contract)
-        current_df = pd.read_csv(CONTRACT_DATA_DIRNAME / f'{futures_symbol}{month}{year}.csv')
+
+        if use_s3:
+            s3_filename = f'data/raw_csv/futures/{futures_symbol}/daily/{futures_symbol}{month}{year}.csv'
+            obj = s3.get_object(Bucket='financial-data-monitor', Key=s3_filename)
+            current_df = pd.read_csv(obj['Body'])
+        else:
+            current_df = pd.read_csv(CONTRACT_DATA_DIRNAME / f'{futures_symbol}{month}{year}.csv')
+
         current_df.set_index('Date', inplace=True)
         current_df.index = pd.to_datetime(current_df.index)
         current_df['Close'] = np.where(current_df['Last'].isnull(), current_df['Settle'], current_df['Last'])

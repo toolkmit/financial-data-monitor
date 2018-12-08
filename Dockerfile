@@ -21,4 +21,6 @@ RUN pipenv install --deploy --system --skip-lock --dev
 # Copy project
 COPY . /code/
 
-CMD scripts/download_all_futures_data.sh
+RUN export PYTHONPATH=.
+
+CMD scripts/send_email_update.sh
